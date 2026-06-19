@@ -1,0 +1,8 @@
+{
+  "type": "apoli:modify_break_speed",
+  "hidden": true,
+  "modifier": {
+    "operation": "multiply_base",
+    "value": 1.5
+  }
+}

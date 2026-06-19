@@ -1,0 +1,22 @@
+{
+  "type": "origins:modify_damage_taken",
+  "hidden": true,
+  "modifier": {
+    "name": "More kinetic damage taken",
+    "value": 1.5,
+    "operation": "addition"
+  },
+  "damage_condition": {
+    "type": "origins:or",
+    "conditions": [
+      {
+        "type": "origins:name",
+        "name": "fall"
+      },
+      {
+        "type": "origins:name",
+        "name": "flyIntoWall"
+      }
+    ]
+  }
+}

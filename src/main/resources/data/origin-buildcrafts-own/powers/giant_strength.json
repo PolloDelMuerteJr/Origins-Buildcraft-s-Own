@@ -1,0 +1,10 @@
+{
+  "type": "origins:attribute",
+  "name": "Arms of a Titan",
+  "description": "Due to your size, your arms are longer, and stronger then others. Letting you dig, and brawl, with ease.",
+  "modifier": {
+    "attribute": "minecraft:generic.attack_damage",
+    "operation": "multiply_base",
+    "value": 1.5
+  }
+}

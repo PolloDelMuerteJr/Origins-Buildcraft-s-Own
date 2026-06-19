@@ -1,0 +1,7 @@
+{
+  "allow_random": true,
+  "replace": false,
+  "origins": [
+    "origin-buildcrafts-own:giant"
+  ]
+}

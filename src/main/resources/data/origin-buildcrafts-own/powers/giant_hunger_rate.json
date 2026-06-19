@@ -1,0 +1,9 @@
+{
+  "type": "origins:modify_exhaustion",
+  "name": "Mammoth Appetite",
+  "description": "Because of amount of mass you must maintain and move, you must consume enormous amounts of food.",
+  "modifier": {
+    "operation": "multiply_base",
+    "value": 2.0
+  }
+}

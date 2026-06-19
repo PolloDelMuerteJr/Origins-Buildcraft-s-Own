@@ -1,0 +1,9 @@
+{
+  "type": "origins:modify_enchantment_level",
+  "hidden": true,
+  "enchantment": "minecraft:knockback",
+  "modifier": {
+    "operation": "addition",
+    "value": 1
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Giant",
+  "description": "Giants are normally found traveling the world, as very little poses a threat to them, except their appetite of course.",
+  "icon": "minecraft:iron_block",
+  "impact": 3,
+  "powers": [
+    "origin-buildcrafts-own:giant_size",
+    "origin-buildcrafts-own:giant_strength",
+    "origin-buildcrafts-own:giant_attack_speed",
+    "origin-buildcrafts-own:giant_health_boost",
+    "origin-buildcrafts-own:giant_knockback_resistance",
+    "origin-buildcrafts-own:giant_knockback_dealt",
+    "origin-buildcrafts-own:giant_hunger_rate",
+    "origin-buildcrafts-own:giant_haste",
+    "origin-buildcrafts-own:giant_fall_damage_multiply",
+    "origin-buildcrafts-own:giant_fall_damage_add",
+    "origin-buildcrafts-own:giant_mount_damage",
+    "origin-buildcrafts-own:giant_elytra_unstable",
+    "origin-buildcrafts-own:giant_levitation",
+    "origin-buildcrafts-own:giant_footsteps",
+    "origin-buildcrafts-own:giant_prevent_ranged",
+    "origin-buildcrafts-own:giant_breaks_blocks"
+  ]
+}

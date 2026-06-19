@@ -1,0 +1,13 @@
+{
+  "type": "apoli:prevent_item_use",
+  "name": "Bow Breaker",
+  "description": "Along with your size comes the problem that bows and other ranged weapons are too weak and small for you to use effectively.",
+  "item_condition": {
+    "type": "apoli:or",
+    "conditions": [
+      { "type": "apoli:ingredient", "ingredient": { "item": "minecraft:bow" } },
+      { "type": "apoli:ingredient", "ingredient": { "item": "minecraft:crossbow" } },
+      { "type": "apoli:ingredient", "ingredient": { "item": "minecraft:trident" } }
+    ]
+  }
+}
