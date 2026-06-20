@@ -5,6 +5,6 @@
   "modifier": {
     "attribute": "minecraft:generic.attack_damage",
     "operation": "multiply_base",
-    "value": 1.5
+    "value": 1.25
   }
 }

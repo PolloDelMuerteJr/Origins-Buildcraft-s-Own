@@ -6,7 +6,14 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//TODO update fabric to 0.15.11 | update origins to 1.11.3
+
 //TODO Break rocks with bare hands?
+//TODO reduce giant move speed
+//TODO increase food bar?
+//TODO Constant food consumption?
+//TODO Less food per/item
+//TODO might need to turn down the strength
 
 // I-WISHLIST
 //Increase the O2 bar (Need mixin to do right)
