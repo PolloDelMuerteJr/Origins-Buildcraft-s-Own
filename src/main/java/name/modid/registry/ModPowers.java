@@ -49,6 +49,12 @@ public class ModPowers {
                 new Identifier("origin-buildcrafts-own", "giant_breaks_blocks"),
                 GIANT_BREAKS_BLOCKS
         );
+        //Giant Constant Food drain
+        Registry.register(
+                ApoliRegistries.POWER_FACTORY,
+                new Identifier("origin-buildcrafts-own", "giant_constant_food_drain"),
+                GIANT_CONSTANT_FOOD_DRAIN
+        );
     }
 //--------------------------------------------------------------------------------------------------//
     //Giant Size
@@ -92,5 +98,12 @@ public class ModPowers {
                     new Identifier("origin-buildcrafts-own", "giant_breaks_blocks"),
                     new SerializableData(),
                     data -> GiantBreaksBlocksPower::new
+            );
+    //Giant Constant Food Drain
+    public static final PowerFactory<Power> GIANT_CONSTANT_FOOD_DRAIN =
+            new PowerFactory<>(
+                    new Identifier("origin-buildcrafts-own", "giant_constant_food_drain"),
+                    new SerializableData(),
+                    data -> GiantConstantFoodDrainPower::new
             );
 }

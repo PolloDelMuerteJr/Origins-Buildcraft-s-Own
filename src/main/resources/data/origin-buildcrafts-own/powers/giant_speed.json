@@ -1,0 +1,9 @@
+{
+  "type": "apoli:attribute",
+  "hidden": true,
+  "modifier": {
+    "attribute": "minecraft:generic.movement_speed",
+    "operation": "multiply_base",
+    "value": -0.3
+  }
+}

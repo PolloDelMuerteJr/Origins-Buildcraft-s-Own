@@ -10,7 +10,6 @@
     "origin-buildcrafts-own:giant_health_boost",
     "origin-buildcrafts-own:giant_knockback_resistance",
     "origin-buildcrafts-own:giant_knockback_dealt",
-    "origin-buildcrafts-own:giant_hunger_rate",
     "origin-buildcrafts-own:giant_haste",
     "origin-buildcrafts-own:giant_fall_damage_multiply",
     "origin-buildcrafts-own:giant_fall_damage_add",
@@ -19,6 +18,8 @@
     "origin-buildcrafts-own:giant_levitation",
     "origin-buildcrafts-own:giant_footsteps",
     "origin-buildcrafts-own:giant_prevent_ranged",
-    "origin-buildcrafts-own:giant_breaks_blocks"
+    "origin-buildcrafts-own:giant_breaks_blocks",
+    "origin-buildcrafts-own:giant_constant_food_drain",
+    "origin-buildcrafts-own:giant_speed"
   ]
 }
