@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "origin-buildcrafts-own",
 	"version": "${version}",
-	"name": "Origin: BuildCraft's own",
+	"name": "Origins: BuildCraft's own",
 	"description": "This is an Origins Addon mod, current it add one Origin. The Giant! A realistic interpretation of a player scaled up to twice their normal size! \nThis mod was made with substantial use of AI",
 	"authors": [
 		"PolloDelMuerteJr"

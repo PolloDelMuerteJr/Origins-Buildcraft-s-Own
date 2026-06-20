@@ -47,7 +47,9 @@ public class GiantBreaksBlocksMixin {
             Blocks.BIG_DRIPLEAF_STEM,
             Blocks.VINE,
             Blocks.TWISTING_VINES,
-            Blocks.WEEPING_VINES
+            Blocks.WEEPING_VINES,
+            Blocks.WEEPING_VINES_PLANT,
+            Blocks.TWISTING_VINES_PLANT
     );
 
     @Inject(method = "tick", at = @At("HEAD"))
