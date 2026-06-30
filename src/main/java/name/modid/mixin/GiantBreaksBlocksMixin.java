@@ -5,11 +5,11 @@ import name.modid.powers.GiantBreaksBlocksPower;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.TrapdoorBlock;
+import net.minecraft.block.enums.BlockHalf;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,7 +38,44 @@ public class GiantBreaksBlocksMixin {
             Blocks.MANGROVE_LEAVES,
             Blocks.CHERRY_LEAVES,
             Blocks.AZALEA_LEAVES,
-            Blocks.FLOWERING_AZALEA_LEAVES
+            Blocks.FLOWERING_AZALEA_LEAVES,
+            Blocks.FLOWER_POT,
+            Blocks.DECORATED_POT,
+            Blocks.GLASS,
+            Blocks.GLASS_PANE,
+            Blocks.TINTED_GLASS,
+            Blocks.WHITE_STAINED_GLASS,
+            Blocks.WHITE_STAINED_GLASS_PANE,
+            Blocks.LIGHT_GRAY_STAINED_GLASS,
+            Blocks.LIGHT_GRAY_STAINED_GLASS_PANE,
+            Blocks.GRAY_STAINED_GLASS,
+            Blocks.GRAY_STAINED_GLASS_PANE,
+            Blocks.BLACK_STAINED_GLASS,
+            Blocks.BLACK_STAINED_GLASS_PANE,
+            Blocks.BROWN_STAINED_GLASS,
+            Blocks.BROWN_STAINED_GLASS_PANE,
+            Blocks.RED_STAINED_GLASS,
+            Blocks.RED_STAINED_GLASS_PANE,
+            Blocks.ORANGE_STAINED_GLASS,
+            Blocks.ORANGE_STAINED_GLASS_PANE,
+            Blocks.YELLOW_STAINED_GLASS,
+            Blocks.YELLOW_STAINED_GLASS_PANE,
+            Blocks.LIME_STAINED_GLASS,
+            Blocks.LIME_STAINED_GLASS_PANE,
+            Blocks.GREEN_STAINED_GLASS,
+            Blocks.GREEN_STAINED_GLASS_PANE,
+            Blocks.CYAN_STAINED_GLASS,
+            Blocks.CYAN_STAINED_GLASS_PANE,
+            Blocks.LIGHT_BLUE_STAINED_GLASS,
+            Blocks.LIGHT_BLUE_STAINED_GLASS_PANE,
+            Blocks.BLUE_STAINED_GLASS,
+            Blocks.BLUE_STAINED_GLASS_PANE,
+            Blocks.PURPLE_STAINED_GLASS,
+            Blocks.PURPLE_STAINED_GLASS_PANE,
+            Blocks.MAGENTA_STAINED_GLASS,
+            Blocks.MAGENTA_STAINED_GLASS_PANE,
+            Blocks.PINK_STAINED_GLASS,
+            Blocks.PINK_STAINED_GLASS_PANE
     );
     private static final Set<Block> INSTANT_BREAK_BLOCKS = Set.of(
             Blocks.LILY_PAD,

@@ -20,6 +20,9 @@
     "origin-buildcrafts-own:giant_prevent_ranged",
     "origin-buildcrafts-own:giant_breaks_blocks",
     "origin-buildcrafts-own:giant_constant_food_drain",
-    "origin-buildcrafts-own:giant_speed"
+    "origin-buildcrafts-own:giant_speed",
+    "origin-buildcrafts-own:giant_interaction_range",
+    "origin-buildcrafts-own:giant_big_beds",
+    "origin-buildcrafts-own:giant_on_landing"
   ]
 }

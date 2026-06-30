@@ -5,7 +5,16 @@
 	"mixins": [
 		"GiantFootstepsMixin",
 		"GiantBreaksBlocksMixin",
-		"GiantConstantFoodDrainMixin"
+		"GiantConstantFoodDrainMixin",
+		"GiantSneakMixin",
+		"GiantJumpMixin",
+		"GiantDetectionMixin",
+		"OriginChoosableMixin",
+		"PlayerTrySleepMixin",
+		"GiantBedSleepMixin",
+		"BedObstructionMixin",
+		"BedDistanceMixin",
+		"GiantTrapdoorMixin"
 		],
 	"injectors": {
 		"defaultRequire": 1

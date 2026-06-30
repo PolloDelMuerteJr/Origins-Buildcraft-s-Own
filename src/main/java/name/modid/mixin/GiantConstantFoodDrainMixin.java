@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//AppleSkin compatability? (At the moment, AppleSkin displays the normal food value of the item)
+
 @Mixin(PlayerEntity.class)
 public class GiantConstantFoodDrainMixin {
 
@@ -40,6 +42,8 @@ public class GiantConstantFoodDrainMixin {
         lastFood = hunger.getFoodLevel();
         lastSaturation = hunger.getSaturationLevel();
     }
+
+    //TODO Test food reduction
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void applyReduction(CallbackInfo ci) {

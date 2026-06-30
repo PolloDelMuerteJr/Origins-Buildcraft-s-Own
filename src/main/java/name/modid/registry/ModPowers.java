@@ -55,6 +55,18 @@ public class ModPowers {
                 new Identifier("origin-buildcrafts-own", "giant_constant_food_drain"),
                 GIANT_CONSTANT_FOOD_DRAIN
         );
+        //Giant bigger beds
+        Registry.register(
+                ApoliRegistries.POWER_FACTORY,
+                new Identifier("origin-buildcrafts-own", "giant_big_beds"),
+                GIANT_BIG_BEDS
+        );
+        //Giant on landing
+        Registry.register(
+                ApoliRegistries.POWER_FACTORY,
+                new Identifier("origin-buildcrafts-own", "giant_on_landing"),
+                GIANT_ON_LANDING
+        );
     }
 //--------------------------------------------------------------------------------------------------//
     //Giant Size
@@ -105,5 +117,19 @@ public class ModPowers {
                     new Identifier("origin-buildcrafts-own", "giant_constant_food_drain"),
                     new SerializableData(),
                     data -> GiantConstantFoodDrainPower::new
+            );
+    //Giant bigger beds
+    public static final PowerFactory<Power> GIANT_BIG_BEDS =
+            new PowerFactory<>(
+                    new Identifier("origin-buildcrafts-own", "giant_big_beds"),
+                    new SerializableData(),
+                    data -> GiantBigBedsPower::new
+            );
+    //Giant On landing
+    public static final PowerFactory<Power> GIANT_ON_LANDING =
+            new PowerFactory<>(
+                    new Identifier("origin-buildcrafts-own", "giant_on_landing"),
+                    new SerializableData(),
+                    data -> GiantOnLandingPower::new
             );
 }

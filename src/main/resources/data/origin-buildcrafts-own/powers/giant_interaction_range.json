@@ -1,0 +1,9 @@
+{
+  "type": "apoli:attribute",
+  "hidden": true,
+  "modifier": {
+    "attribute": "reach-entity-attributes:reach",
+    "operation": "addition",
+    "value": -1.5
+  }
+}

@@ -6,7 +6,7 @@ import net.minecraft.entity.LivingEntity;
 import virtuoel.pehkui.api.ScaleData;
 import virtuoel.pehkui.api.ScaleTypes;
 
-public class GiantSizePower extends Power {
+public class GiantSizePower extends Power {  //Also detected by some Mixins
 
     public GiantSizePower(PowerType<?> type, LivingEntity entity) {
         super(type, entity);
