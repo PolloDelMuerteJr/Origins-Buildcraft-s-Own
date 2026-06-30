@@ -47,7 +47,7 @@ public abstract class PlayerTrySleepMixin {
         BlockState state = player.getWorld().getBlockState(pos);
 
         if (isWool(state)) {
-            System.out.println("TRY_SLEEP MIXIN ACTIVE"); //debug line
+            //System.out.println("TRY_SLEEP MIXIN ACTIVE"); //debug line
             cir.setReturnValue(Either.right(Unit.INSTANCE));
         }
     }

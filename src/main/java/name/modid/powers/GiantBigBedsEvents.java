@@ -56,7 +56,7 @@ public class GiantBigBedsEvents {
             if (player.isSneaking()) {
                 return ActionResult.PASS;
             }
-            System.out.println("[GiantBigBeds] interaction with: " + block); //debug line
+            //System.out.println("[GiantBigBeds] interaction with: " + block); //debug line
 
             //Stop Giant from using beds
             if (isBed && hasGiantBedPower(player)) {
@@ -70,7 +70,7 @@ public class GiantBigBedsEvents {
             if (isWool) {
                 BlockPos anchor = getGiantBedAnchor(world, hit.getBlockPos());
                 if (anchor != null) {
-                    System.out.println("This wool is part of a giant bed!"); //debug line
+                    //System.out.println("This wool is part of a giant bed!"); //debug line
 
                     BlockPos sleepPos = new BlockPos(
                             anchor.getX(),
@@ -87,7 +87,7 @@ public class GiantBigBedsEvents {
             //TODO update carpet bed logic
             if (isCarpet) {
                 if (isPartOfGiantCarpetBed(world, hit.getBlockPos())) {
-                    System.out.println("This carpet is part of a giant bed!"); //debug line
+                    //System.out.println("This carpet is part of a giant bed!"); //debug line
                     return ActionResult.SUCCESS;
                 }
             }
