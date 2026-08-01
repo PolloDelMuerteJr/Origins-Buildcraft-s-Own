@@ -7,6 +7,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.TrapdoorBlock;
 import net.minecraft.block.enums.BlockHalf;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -34,8 +36,10 @@ public class GiantTrapdoorMixin {
 
         if (!PowerHolderComponent.hasPower(player, GiantOnLandingPower.class)) return;
 
-        if (!(player.getWorld() instanceof ServerWorld world))
-            return;
+        if (player.isSpectator()) return;
+        if (player.isCreative()) return;
+
+        if (!(player.getWorld() instanceof ServerWorld world)) return;
 
         if (player.fallDistance > 2.4) {
             //Play Fun sound effects
@@ -63,6 +67,13 @@ public class GiantTrapdoorMixin {
             );
 
             //Open wooden trapdoors
+            int featherFallingLevel = EnchantmentHelper.getEquipmentLevel(
+                    Enchantments.FEATHER_FALLING,
+                    player
+            );
+
+            if (featherFallingLevel >= 4) return;
+
             Box box = player.getBoundingBox();
 
             // Slightly below the player's feet

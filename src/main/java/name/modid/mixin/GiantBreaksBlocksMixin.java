@@ -5,8 +5,8 @@ import name.modid.powers.GiantBreaksBlocksPower;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.TrapdoorBlock;
-import net.minecraft.block.enums.BlockHalf;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.*;
@@ -102,6 +102,15 @@ public class GiantBreaksBlocksMixin {
         if (!PowerHolderComponent.hasPower(player, GiantBreaksBlocksPower.class)) return;
 
         if (!(player.getWorld() instanceof ServerWorld serverWorld)) return;
+
+        int featherFallingLevel = EnchantmentHelper.getEquipmentLevel(
+                Enchantments.FEATHER_FALLING,
+                player
+        );
+
+        if (featherFallingLevel >= 4) return;
+
+        if (featherFallingLevel > player.getRandom().nextInt(7)) return; //Sets the impact of feather falling on how slow blocks break
 
         World world = player.getWorld();
 

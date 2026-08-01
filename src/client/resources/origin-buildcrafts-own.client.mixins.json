@@ -3,6 +3,12 @@
 	"package": "name.modid.client.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"client": [
+		"ChargingFovMixin",
+		"HideHandMixin",
+		"HidePortalParticlesMixin",
+		"PortalOverlayMixin",
+		"DisableDistortionMixin",
+		"HideCrosshairMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

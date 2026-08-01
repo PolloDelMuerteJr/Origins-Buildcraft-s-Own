@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.Vec3d;
 
-//TODO make fireworks less effective as boosts (need mixin)
+//This Power is also detected by the FireworkRocketEntityMixin, and ClientPlayerEntityMixin
 
 public class GiantElytraUnstablePower extends Power {
 
@@ -28,7 +28,7 @@ public class GiantElytraUnstablePower extends Power {
             // make elytra gliding less useful by slowing down the giant. Doesn't affect flight during firework use.
             if (entity.isFallFlying()) {
 
-                entity.addVelocity(0, -0.06, 0);
+                entity.addVelocity(0, -0.04, 0);
 
                 // damage elytra
                 if (cooldown >= 15) {
@@ -40,9 +40,9 @@ public class GiantElytraUnstablePower extends Power {
                 // slow horizontal movement
                 Vec3d v = entity.getVelocity();
                 entity.setVelocity(
-                        v.x * 0.97,
+                        v.x * 0.98,
                         v.y,
-                        v.z * 0.97
+                        v.z * 0.98
                 );
 
                 entity.velocityModified = true;

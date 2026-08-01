@@ -43,8 +43,6 @@ public class GiantConstantFoodDrainMixin {
         lastSaturation = hunger.getSaturationLevel();
     }
 
-    //TODO Test food reduction
-
     @Inject(method = "tick", at = @At("TAIL"))
     private void applyReduction(CallbackInfo ci) {
         PlayerEntity player = (PlayerEntity)(Object)this;

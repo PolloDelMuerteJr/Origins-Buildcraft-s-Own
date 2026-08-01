@@ -1,0 +1,10 @@
+{
+  "name": "Jumper",
+  "description": "Jumpers can launch themselves through space. Though this process is powerful, barely controlled, and risky.",
+  "icon": "minecraft:ender_eye",
+  "impact": 2,
+  "powers": [
+    "origin-buildcrafts-own:jumper_jump",
+    "origin-buildcrafts-own:jumper_description"
+  ]
+}

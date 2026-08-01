@@ -1,6 +1,9 @@
 package name.modid.registry;
 
+import io.github.apace100.apoli.data.ApoliDataTypes;
+import io.github.apace100.apoli.power.Active;
 import io.github.apace100.apoli.power.Power;
+import io.github.apace100.apoli.power.PowerType;
 import io.github.apace100.apoli.power.factory.PowerFactory;
 import io.github.apace100.apoli.registry.ApoliRegistries;
 import io.github.apace100.calio.data.SerializableData;
@@ -55,17 +58,31 @@ public class ModPowers {
                 new Identifier("origin-buildcrafts-own", "giant_constant_food_drain"),
                 GIANT_CONSTANT_FOOD_DRAIN
         );
-        //Giant bigger beds
-        Registry.register(
-                ApoliRegistries.POWER_FACTORY,
-                new Identifier("origin-buildcrafts-own", "giant_big_beds"),
-                GIANT_BIG_BEDS
-        );
         //Giant on landing
         Registry.register(
                 ApoliRegistries.POWER_FACTORY,
                 new Identifier("origin-buildcrafts-own", "giant_on_landing"),
                 GIANT_ON_LANDING
+        );
+        //Giant breaks beds
+        Registry.register(
+                ApoliRegistries.POWER_FACTORY,
+                new Identifier("origin-buildcrafts-own", "giant_bed_breaker"),
+                GIANT_BED_BREAKER
+        );
+        //----------------------------------------------------------------------------------------------------//
+        //--------------------------------------jumper powers-------------------------------------------------//
+        //----------------------------------------------------------------------------------------------------//
+        Registry.register(
+                ApoliRegistries.POWER_FACTORY,
+                new Identifier("origin-buildcrafts-own", "jumper_jump"),
+                JUMPER_JUMP
+        );
+        //This power is purely a description, it does nothing
+        Registry.register(
+                ApoliRegistries.POWER_FACTORY,
+                new Identifier("origin-buildcrafts-own", "jumper_description"),
+                JUMPER_DESCRIPTION
         );
     }
 //--------------------------------------------------------------------------------------------------//
@@ -118,18 +135,42 @@ public class ModPowers {
                     new SerializableData(),
                     data -> GiantConstantFoodDrainPower::new
             );
-    //Giant bigger beds
-    public static final PowerFactory<Power> GIANT_BIG_BEDS =
-            new PowerFactory<>(
-                    new Identifier("origin-buildcrafts-own", "giant_big_beds"),
-                    new SerializableData(),
-                    data -> GiantBigBedsPower::new
-            );
     //Giant On landing
     public static final PowerFactory<Power> GIANT_ON_LANDING =
             new PowerFactory<>(
                     new Identifier("origin-buildcrafts-own", "giant_on_landing"),
                     new SerializableData(),
                     data -> GiantOnLandingPower::new
+            );
+    //Giant Breaks Beds
+    public static final PowerFactory<Power> GIANT_BED_BREAKER =
+            new PowerFactory<>(
+                    new Identifier("origin-buildcrafts-own", "giant_bed_breaker"),
+                    new SerializableData(),
+                    data -> GiantBedBreakerPower::new
+            );
+    //----------------------------------------------------------------------------------------------------//
+    //--------------------------------------jumper powers-------------------------------------------------//
+    //----------------------------------------------------------------------------------------------------//
+    public static final PowerFactory<Power> JUMPER_JUMP =
+            new PowerFactory<>(
+                    new Identifier("origin-buildcrafts-own", "jumper_jump"),
+                    new SerializableData()
+                            .add("key",
+                                    ApoliDataTypes.BACKWARDS_COMPATIBLE_KEY,
+                                    new Active.Key()),
+                    data -> (type, player) ->
+                            new JumperActive(
+                                    type,
+                                    player,
+                                    data.get("key")
+                            )
+            );
+    //This power is purely a description, it does nothing
+    public static final PowerFactory<Power> JUMPER_DESCRIPTION =
+            new PowerFactory<>(
+                    new Identifier("origin-buildcrafts-own", "jumper_description"),
+                    new SerializableData(),
+                    data -> JumperDescriptionPower::new
             );
 }

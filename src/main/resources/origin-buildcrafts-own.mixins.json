@@ -10,11 +10,11 @@
 		"GiantJumpMixin",
 		"GiantDetectionMixin",
 		"OriginChoosableMixin",
-		"PlayerTrySleepMixin",
-		"GiantBedSleepMixin",
-		"BedObstructionMixin",
-		"BedDistanceMixin",
-		"GiantTrapdoorMixin"
+		"GiantTrapdoorMixin",
+		"FireworkRocketEntityMixin",
+		"LivingEntityElytraDirectionMixin",
+		"GiantBedBreakerMixin",
+		"GiantBubbleColumnMixin"
 		],
 	"injectors": {
 		"defaultRequire": 1

@@ -1,0 +1,9 @@
+{
+  "type": "origin-buildcrafts-own:jumper_jump",
+  "name": "Void Jump",
+  "description": "You can 'Jump' yourself forward through space, the distance increasing with time spent charging. Though this can have adverse effects.",
+  "key": {
+    "continuous": true,
+    "key": "key.origins.primary_active"
+  }
+}
