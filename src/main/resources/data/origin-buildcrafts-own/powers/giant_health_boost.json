@@ -1,7 +1,7 @@
 {
   "type": "origins:attribute",
   "name": "Gargantuan Weight",
-  "description": "With your large size comes with an even greater mass. This increases your effective health. But leaves you very vulnerable to fall damage.",
+  "description": "With your large size comes with an even greater mass. This increases your effective health, but leaves you very vulnerable to fall damage.",
   "modifier": {
     "attribute": "minecraft:generic.max_health",
     "operation": "addition",

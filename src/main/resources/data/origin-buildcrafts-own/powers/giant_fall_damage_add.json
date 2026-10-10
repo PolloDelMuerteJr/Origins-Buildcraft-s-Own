@@ -3,7 +3,7 @@
   "hidden": true,
   "modifier": {
     "name": "More kinetic damage taken",
-    "value": 1.5,
+    "value": 2.5,
     "operation": "addition"
   },
   "damage_condition": {

@@ -10,6 +10,7 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.*;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -88,6 +89,12 @@ public class GiantBreaksBlocksMixin {
             Blocks.WEEPING_VINES_PLANT,
             Blocks.TWISTING_VINES_PLANT
     );
+    private static final Set<Block> NO_COLLISION_BREAK_BLOCKS = Set.of(
+            Blocks.VINE,
+            Blocks.SMALL_DRIPLEAF,
+            Blocks.TWISTING_VINES,
+            Blocks.WEEPING_VINES
+    );
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void giantBreaksBlocksMixin(CallbackInfo ci) {
@@ -116,25 +123,63 @@ public class GiantBreaksBlocksMixin {
 
         Box box = player.getBoundingBox();
 
-// Slightly below the player's feet
-        int y = MathHelper.floor(box.minY - 0.05);
+// A thin slice immediately below the Giant's feet
+        double epsilon = 0.01;
 
-        int minX = MathHelper.floor(box.minX);
-        int maxX = MathHelper.floor(box.maxX);
+        Box footBox = new Box(
+                box.minX,
+                box.minY - epsilon,
+                box.minZ,
+                box.maxX,
+                box.minY,
+                box.maxZ
+        );
 
-        int minZ = MathHelper.floor(box.minZ);
-        int maxZ = MathHelper.floor(box.maxZ);
+// Find the block coordinates covered by the feet
+        int minX = MathHelper.floor(footBox.minX);
+        int maxX = MathHelper.floor(footBox.maxX);
+        int y = MathHelper.floor(box.minY - epsilon);
+        int minZ = MathHelper.floor(footBox.minZ);
+        int maxZ = MathHelper.floor(footBox.maxZ);
 
-// Phase 1: snapshot positions
         List<BlockPos> positions = new ArrayList<>();
 
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
 
-                positions.add(new BlockPos(x, y, z));
+                BlockPos pos = new BlockPos(x, y, z);
+                BlockState state = world.getBlockState(pos);
 
-                // Also check one block higher for thin blocks
-                positions.add(new BlockPos(x, y + 1, z));
+                // Get the block's actual collision shape
+                VoxelShape shape = state.getCollisionShape(world, pos);
+
+                // Convert the shape into world coordinates
+                Box blockBox = shape.isEmpty()
+                        ? null
+                        : shape.getBoundingBox().offset(
+                        pos.getX(),
+                        pos.getY(),
+                        pos.getZ()
+                );
+
+                // Only include blocks whose collision shape touches the feet
+                boolean hasCollision = !shape.isEmpty()
+                        && shape.getBoundingBox()
+                        .offset(pos.getX(), pos.getY(), pos.getZ())
+                        .intersects(footBox);
+
+                boolean isSpecialPlant =
+                        NO_COLLISION_BREAK_BLOCKS.contains(state.getBlock());
+
+                boolean overlapsFeet =
+                        pos.getX() + 1.0 > box.minX
+                                && pos.getX() < box.maxX
+                                && pos.getZ() + 1.0 > box.minZ
+                                && pos.getZ() < box.maxZ;
+
+                if (overlapsFeet && (hasCollision || isSpecialPlant)) {
+                    positions.add(pos);
+                }
             }
         }
 
@@ -144,7 +189,7 @@ public class GiantBreaksBlocksMixin {
             BlockState state = world.getBlockState(pos);
 
             //intabreak lilypads, and the sort
-            if (INSTANT_BREAK_BLOCKS.contains(state.getBlock())) {
+            if (INSTANT_BREAK_BLOCKS.contains(state.getBlock()) || NO_COLLISION_BREAK_BLOCKS.contains(state.getBlock())){
 
                 world.breakBlock(pos, true, player);
 

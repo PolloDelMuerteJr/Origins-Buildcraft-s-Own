@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // I-WISHLIST
-//Make Giant eat food faster. (Not doable, No clean Mixin, ChatGPT cant put something fuctional together, neither can I. I tried #LivingEntity, to no scuccess. #Item worked, but has no per-player context)
+//Make Giant eat food faster. (Not doable, No clean Mixin, ChatGPT cant put something functional together, neither can I. I tried #LivingEntity, to no success. #Item worked, but has no per-player context)
 //Increase throw strength? (Need mixins)
 //Let Giants use riptide tridents only (I could, but right now the power is a nice, small, clean .json, and I don't want to change it.)
 //reduce giant acceleration? (not doable? GPT couldn't figure it out, neither can I)

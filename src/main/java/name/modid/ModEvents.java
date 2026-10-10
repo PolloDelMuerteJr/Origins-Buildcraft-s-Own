@@ -5,7 +5,6 @@ import io.github.apace100.apoli.power.Power;
 import name.modid.powers.JumperActive;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.player.*;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.TypedActionResult;
 
@@ -71,7 +70,6 @@ public class ModEvents {
             if (JumperActive.CHARGING(player)) {
                 return false;
             }
-
             return true;
         });
 

@@ -166,7 +166,7 @@ public class JumperActive extends Power implements Active {
                 double chance = (instability / 180.0);
 
                     if (Math.random() < chance) {
-                        long radius = Math.round((instability) / 4); //converts the double 'instability' into a long
+                        long radius = Math.round((instability) / 4);
 
                         boolean successfulTeleport = safeRandomTeleport(player, (int) radius);
                         if (successfulTeleport) instability -= 5;
@@ -190,7 +190,7 @@ public class JumperActive extends Power implements Active {
         }
 
         //TODO check if sounds are client side, or not. If not, make them client side.
-        int timeCharged = (charge/20) - 20; //Charge incresses every tick, timeCharged is in seconds
+        int timeCharged = (charge/20) - 20; //Charge increases every tick, timeCharged is in seconds
 
         if (timeCharged >= 2) {
 
@@ -219,7 +219,6 @@ public class JumperActive extends Power implements Active {
                 }
             }
         }
-
 
         if (instability > 20) {
 
@@ -417,6 +416,8 @@ public class JumperActive extends Power implements Active {
         CHARGING.add(id);
         charging = true;
 
+        //TODO set player into spectator during charge
+
         PacketByteBuf chargingBuf = PacketByteBufs.create();
         chargingBuf.writeBoolean(charging);
 
@@ -526,10 +527,10 @@ public class JumperActive extends Power implements Active {
                 (ServerPlayerEntity) player,
                 ModPackets.INSTABILITY_SYNC,
                 instabilityBuf
-        );;
+        );
 
         charge = 0;
-        cooldown = 15;
+        cooldown = 3;
         CHARGING.remove(id);
     }
 

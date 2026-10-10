@@ -16,6 +16,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //TODO Make Giant vibrations louder for wardens/sculk (seems like a bit of a rats nest of mixins)
 //TODO Fix footstep timing errors. (Will need mixins into player limb swing amount?)
 
+//!!! THIS MIXIN IS NOT ACTIVE IN CURRENT BUILD !!!
+//I dont the like way it sounds
+
 @Mixin(PlayerEntity.class)
 public class GiantFootstepsMixin {
 
