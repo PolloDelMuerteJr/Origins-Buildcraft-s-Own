@@ -5,6 +5,6 @@
   "impact": 2,
   "powers": [
     "origin-buildcrafts-own:jumper_jump",
-    "origin-buildcrafts-own:jumper_description"
+    "origin-buildcrafts-own:jumper_instability_events"
   ]
 }

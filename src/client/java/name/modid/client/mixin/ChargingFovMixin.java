@@ -13,7 +13,7 @@ public class ChargingFovMixin {
     private static float chargingFovIncrease = 0.0f;
 
     private static final float MAX_FOV_INCREASE = 50.0f;
-    private static final float CHARGE_SPEED = 0.3f;
+    private static final float CHARGE_SPEED = 0.1f;
 
     @Inject(
             method = "getFov",

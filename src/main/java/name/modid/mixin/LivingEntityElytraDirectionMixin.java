@@ -19,6 +19,9 @@ public abstract class LivingEntityElytraDirectionMixin {
     @Unique
     private boolean giant$initialized = false;
 
+    @Unique
+    private boolean giant$wasFallFlying = false;
+
     @Redirect(
             method = "travel",
             at = @At(
@@ -32,27 +35,35 @@ public abstract class LivingEntityElytraDirectionMixin {
             return entity.getRotationVector();
         }
 
-        if (!player.isFallFlying()) {
-            giant$initialized = false;
-            return player.getRotationVector();
-        }
+        boolean shouldLag =
+                player.isFallFlying()
+                        && PowerHolderComponent.hasPower(
+                        player,
+                        GiantElytraUnstablePower.class
+                );
 
-        if (!PowerHolderComponent.hasPower(player, GiantElytraUnstablePower.class)) {
+        if (!shouldLag) {
             giant$initialized = false;
+            giant$wasFallFlying = false;
             return player.getRotationVector();
         }
 
         Vec3d target = player.getRotationVector();
 
-        if (!giant$initialized) {
+        // Initialize when starting a new flight.
+        if (!giant$initialized || !giant$wasFallFlying) {
             giant$smoothedDirection = target;
             giant$initialized = true;
+        } else {
+            double strength = 0.08;
+
+            giant$smoothedDirection =
+                    giant$smoothedDirection
+                            .lerp(target, strength)
+                            .normalize();
         }
 
-        // smoothing factor (lower = heavier / more lag)
-        double strength = 0.08;
-
-        giant$smoothedDirection = giant$smoothedDirection.lerp(target, strength).normalize();
+        giant$wasFallFlying = true;
 
         return giant$smoothedDirection;
     }

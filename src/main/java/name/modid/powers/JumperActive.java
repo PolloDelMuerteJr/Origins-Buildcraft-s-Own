@@ -8,8 +8,12 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.EndermanEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.CompassItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
@@ -20,8 +24,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -34,7 +40,17 @@ public class JumperActive extends Power implements Active {
     private static final Map<UUID, Vec3d> STORED_VELOCITY = new HashMap<>();
     private static final Map<UUID, Vec3d> LOCKED_POSITIONS = new HashMap<>();
 
+    GameMode gameMode = (GameMode.CREATIVE);
+
     private int storedAir = 0;
+
+    float playerHealth = 20;
+    private int savedHunger;
+    private float savedSaturation;
+    private float savedExhaustion;
+
+    private final Map<UUID, List<StatusEffectInstance>> savedEffects =
+            new HashMap<>();
 
     private RegistryKey<World> lastDimension;
 
@@ -46,7 +62,6 @@ public class JumperActive extends Power implements Active {
     private int charge = 0;
     private int ticksSinceUse = 0;
 
-    private int instabilityTimer = 0;
     private int packetTimer = 0;
 
     int cooldown = 20;
@@ -74,7 +89,7 @@ public class JumperActive extends Power implements Active {
 
         if (!(entity instanceof PlayerEntity player)) return;
 
-        World world = player.getWorld();
+        ServerWorld world = (ServerWorld) player.getWorld();
         if (world.isClient()) return;
 
         UUID id = player.getUuid();
@@ -86,12 +101,17 @@ public class JumperActive extends Power implements Active {
 
         // If tick runs and onUse() did NOT run this tick,
         // we treat it as "released"
-        if (ticksSinceUse > 1 && CHARGING.contains(id)) {
+        if (ticksSinceUse > 2 && CHARGING.contains(id)) {
             onRelease();
         }
         // first press detection
         if (ticksSinceUse == 0 && !CHARGING.contains(id) && cooldown == 0) {
-            onFirstPress();
+            ItemStack mainHand = player.getMainHandStack();
+            if (mainHand.isOf(Items.COMPASS) || mainHand.isOf(Items.RECOVERY_COMPASS)) {
+                compassTeleport(player, mainHand, world);
+            } else {
+                onFirstPress();
+            }
         }
 
         if (CHARGING.contains(id)) {
@@ -152,28 +172,6 @@ public class JumperActive extends Power implements Active {
                     0.2
             );
         }
-
-        //Random Instability teleports when instability greater then 10
-        instabilityTimer++;
-
-        if (instabilityTimer >= 20) {
-            instabilityTimer = 0;
-
-            if (instability > 10) {
-
-                if (cooldown == 0) {
-
-                double chance = (instability / 180.0);
-
-                    if (Math.random() < chance) {
-                        long radius = Math.round((instability) / 4);
-
-                        boolean successfulTeleport = safeRandomTeleport(player, (int) radius);
-                        if (successfulTeleport) instability -= 5;
-                    }
-                }
-            }
-        }
         packetTimer++;
         if (packetTimer >= 5) {
             packetTimer = 0;
@@ -192,49 +190,33 @@ public class JumperActive extends Power implements Active {
         //TODO check if sounds are client side, or not. If not, make them client side.
         int timeCharged = (charge/20) - 20; //Charge increases every tick, timeCharged is in seconds
 
-        if (timeCharged >= 2) {
+        if (timeCharged >= 5) {
 
-            double chance = Math.max(Math.pow((timeCharged / 130.0),2)+0.01, 0.3);
+            double chance = Math.min(Math.pow((timeCharged / 230.0),1.5)+0.01, 0.3);
 
             if (Math.random() < chance) {
                 player.playSound(
                         SoundEvents.PARTICLE_SOUL_ESCAPE,
                         SoundCategory.PLAYERS,
-                        2.0f,
+                        3.0f,
                         1.0f
                 );
             }
 
-            if (timeCharged >= 20) {
+            if (timeCharged >= 23) {
 
-                chance = Math.max(Math.pow((timeCharged / 650.0),2)+0.02, 0.08);
+                chance = Math.min(Math.pow((timeCharged / 650.0),2)+0.02, 0.08);
 
                 if (Math.random() < chance) {
                     player.playSound(
                             SoundEvents.ENTITY_PHANTOM_AMBIENT,
                             SoundCategory.PLAYERS,
-                            2.5f,
+                            2.2f,
                             0.9f
                     );
                 }
             }
         }
-
-        if (instability > 20) {
-
-            List<EndermanEntity> endermen = world.getEntitiesByClass(
-                    EndermanEntity.class,
-                    player.getBoundingBox().expand((5*(instability/15))),
-                    e -> true
-            );
-
-            for (EndermanEntity enderman : endermen) {
-                enderman.setAngryAt(player.getUuid());
-                enderman.setTarget(player);
-                instability -= 1;
-            }
-        }
-
         RegistryKey<World> currentDimension = entity.getWorld().getRegistryKey();
 
         if (lastDimension == null) {
@@ -251,178 +233,26 @@ public class JumperActive extends Power implements Active {
         cooldown = (Math.max((cooldown-1), 0));
     }
 
-    //TODO make the safe teleport only check for lava, not water
-    //Random instability teleport method
-    public static boolean safeRandomTeleport(PlayerEntity player, int radius) {
-
-        if (CHARGING(player)) return false; //Dont run during charging
-
-        World world = player.getWorld();
-        var random = player.getRandom();
-
-        for (int attempt = 0; attempt < 16; attempt++) {
-
-            double offsetX = (random.nextDouble() - 0.5) * 2 * radius;
-            double offsetZ = (random.nextDouble() - 0.5) * 2 * radius;
-
-            double targetX = player.getX() + offsetX;
-            double targetZ = player.getZ() + offsetZ;
-
-            if (player.isFallFlying()) radius = radius * 2;
-
-            Vec3d velocity = player.getVelocity();
-
-            // 1. Find top solid ground
-            int maxVerticalDistance = radius;
-
-            BlockPos.Mutable pos = new BlockPos.Mutable(
-                    (int) targetX,
-                    (int) player.getY(),
-                    (int) targetZ
-            );
-
-            BlockPos groundPos = null;
-
-            for (int y = maxVerticalDistance; y >= -maxVerticalDistance; y--) {
-
-                pos.setY((int) (player.getY() + y));
-
-                BlockState block = world.getBlockState(pos);
-                BlockState above = world.getBlockState(pos.up());
-                BlockState above2 = world.getBlockState(pos.up(2));
-
-                if (player.isFallFlying()) {
-                    if (block.isAir()) {
-                        groundPos = pos.toImmutable();
-                    }
-                } else {
-                    if (block.isSolidBlock(world, pos) && above.isAir() && above2.isAir()) {
-                        groundPos = pos.toImmutable();
-                        break;
-                    }
-                }
-            }
-
-            if (groundPos == null) continue;
-
-            // 2. Check chunk is loaded
-            if (!world.isChunkLoaded(groundPos)) continue;
-
-            if (!player.isFallFlying()) {
-                // groundPos is the block the player stands on
-                BlockState feet = world.getBlockState(groundPos.up());
-                BlockState head = world.getBlockState(groundPos.up(2));
-
-                if (!feet.isAir() || !head.isAir()) continue;
-
-                // 7. Avoid unsafe fall (optional but recommended)
-                BlockPos scanDown = groundPos.down();
-                int safeDrop = 0;
-
-                while (scanDown.getY() > world.getBottomY()
-                        && world.getBlockState(scanDown).isAir()) {
-                    safeDrop++;
-                    scanDown = scanDown.down();
-
-                    if (safeDrop > 5) break;
-                }
-
-                if (safeDrop > 5) continue;
-            }
-
-            double oldX = player.getX();
-            double oldY = player.getY() + 1;
-            double oldZ = player.getZ();
-
-            float yaw = (float) (player.getYaw() + ((random.nextFloat() - 0.5) * radius * 4));
-            float pitch = (float) MathHelper.clamp((player.getPitch() + ((random.nextFloat() - 0.5) * radius * 1.3)), -90.0F, 90.0F);
-
-            if (!player.isFallFlying()) {
-                yaw = player.getYaw();
-                pitch = player.getPitch();
-            }
-
-            // 8. Teleport player
-            player.requestTeleport(
-                    groundPos.getX() + 0.5,
-                    groundPos.getY() + 1,
-                    groundPos.getZ() + 0.5
-            );
-
-            if (player instanceof ServerPlayerEntity serverPlayer) {
-                serverPlayer.networkHandler.requestTeleport(
-                        groundPos.getX() + 0.5,
-                        groundPos.getY() + 1,
-                        groundPos.getZ() + 0.5,
-                        yaw,
-                        pitch
-                );
-            }
-
-            player.setYaw(yaw);
-            player.setPitch(pitch);
-
-            player.setVelocity(velocity);
-            player.velocityModified = true;
-
-            //Instability damage
-            player.damage(player.getDamageSources().outOfWorld(), 2);
-
-            // 9. Effects
-            if (world instanceof ServerWorld serverWorld) {
-                serverWorld.spawnParticles(
-                        ParticleTypes.PORTAL,
-                        oldX,
-                        oldY + 1,
-                        oldZ,
-                        16,
-                        0.5,
-                        0.5,
-                        0.5,
-                        0.2
-                );
-
-                serverWorld.spawnParticles(
-                        ParticleTypes.PORTAL,
-                        player.getX(),
-                        player.getY() + 1,
-                        player.getZ(),
-                        16,
-                        0.5,
-                        0.5,
-                        0.5,
-                        0.2
-                );
-            }
-
-            player.playSound(
-                    SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT,
-                    SoundCategory.PLAYERS,
-                    1.0f,
-                    1.0f
-            );
-
-            return true; // success
-        }
-
-        return false; // failed after retries
-    }
-
     private void onFirstPress() {
-        if (!(entity instanceof PlayerEntity player)) return;
+        if (!(entity instanceof ServerPlayerEntity player)) return;
 
         UUID id = player.getUuid();
 
         CHARGING.add(id);
         charging = true;
 
-        //TODO set player into spectator during charge
+        gameMode = player.interactionManager.getGameMode();
+        playerHealth = player.getHealth();
+
+        savedHunger = player.getHungerManager().getFoodLevel();
+        savedSaturation = player.getHungerManager().getSaturationLevel();
+        savedExhaustion = player.getHungerManager().getExhaustion();
 
         PacketByteBuf chargingBuf = PacketByteBufs.create();
         chargingBuf.writeBoolean(charging);
 
         ServerPlayNetworking.send(
-                (ServerPlayerEntity) player,
+                player,
                 ModPackets.CHARGING_SYNC,
                 chargingBuf
         );
@@ -442,11 +272,18 @@ public class JumperActive extends Power implements Active {
         player.setInvulnerable(true);
         player.setVelocity(0, 0, 0);
         player.fallDistance = 0;
-        //player.setInvisible(true);  //not sure if I want/can have the player fully disappear
+        player.changeGameMode(GameMode.SPECTATOR);
+
+        List<StatusEffectInstance> effects = new ArrayList<>();
+
+        for (StatusEffectInstance effect : player.getStatusEffects()) {
+            effects.add(new StatusEffectInstance(effect));
+        }
+        savedEffects.put(player.getUuid(), effects);
     }
 
     private void onRelease() {
-        if (!(entity instanceof PlayerEntity player)) return;
+        if (!(entity instanceof ServerPlayerEntity player)) return;
         if (!(player.getWorld() instanceof ServerWorld world)) return;
 
         if (!(cooldown == 0)) return;
@@ -461,7 +298,7 @@ public class JumperActive extends Power implements Active {
         chargingBuf.writeBoolean(charging);
 
         ServerPlayNetworking.send(
-                (ServerPlayerEntity) player,
+                player,
                 ModPackets.CHARGING_SYNC,
                 chargingBuf
         );
@@ -472,7 +309,7 @@ public class JumperActive extends Power implements Active {
         player.setSilent(false);
         player.setInvulnerable(false);
         player.setCustomNameVisible(true);
-        //player.setInvisible(false); //not sure if I want/can have the player fully disappear
+        player.changeGameMode(gameMode);
 
         //restore physics
         player.setNoGravity(false);
@@ -482,19 +319,107 @@ public class JumperActive extends Power implements Active {
         Vec3d velocity = STORED_VELOCITY.getOrDefault(id, player.getVelocity());
         STORED_VELOCITY.remove(id);
 
-        double distance = 1.2 * Math.pow(charge / 10.0, 2);
+        double distance = 3.2 * Math.pow(charge / 10.0, 1.2) + 10;
+        if (charge >= 400)
+            distance = 2.2 * Math.pow((double) charge / 10, 1.4) - 107;
 
         Vec3d look = player.getRotationVec(1.0F);
         Vec3d target = player.getPos().add(look.multiply(distance));
 
+        Vec3d safePos = findSafePosition(
+                (ServerWorld) player.getWorld(),
+                player,
+                target
+        );
+
+        player.setYaw(playerYaw);
+        player.setPitch(playerPitch);
+
         //Final Teleport
-        player.requestTeleport(
-                target.x,
-                target.y,
-                target.z);
+        if (instability < 20) {
+            if (safePos != null) {
+                player.teleport(
+                        (ServerWorld) player.getWorld(),
+                        safePos.x,
+                        safePos.y,
+                        safePos.z,
+                        playerYaw,
+                        playerPitch
+                );
+            } else {
+                player.damage(player.getDamageSources().inWall(), 2);
+            }
+
+        } else if (instability < 50) { //If instability between 20 and 50, look for a safe place to teleport, else damage.
+            if (safePos != null) {
+                player.teleport(
+                        (ServerWorld) player.getWorld(),
+                        safePos.x,
+                        safePos.y,
+                        safePos.z,
+                        playerYaw,
+                        playerPitch
+                );
+            } else {
+                player.damage(player.getDamageSources().inWall(), 5);
+            }
+        } else if (instability < 80) { //If instability between 60 and 80, look for a safe place to teleport, but dont require one.
+            if (safePos != null) {
+                player.teleport(
+                        (ServerWorld) player.getWorld(),
+                        safePos.x,
+                        safePos.y,
+                        safePos.z,
+                        playerYaw,
+                        playerPitch
+                );
+            } else {
+                player.teleport(
+                        (ServerWorld) player.getWorld(),
+                        target.x,
+                        target.y,
+                        target.z,
+                        playerYaw,
+                        playerPitch
+                );
+            }
+        } else { // If instability over 80, just teleport them, safe or not.
+            player.teleport(
+                    (ServerWorld) player.getWorld(),
+                    target.x,
+                    target.y,
+                    target.z,
+                    playerYaw,
+                    playerPitch
+            );
+        }
 
         player.setVelocity(velocity);
         player.velocityModified = true;
+
+        List<StatusEffectInstance> effects =
+                savedEffects.remove(player.getUuid());
+
+        if (effects != null) {
+            // Remove all effects currently active.
+            for (StatusEffectInstance effect :
+                    new ArrayList<>(player.getStatusEffects())) {
+                player.removeStatusEffect(effect.getEffectType());
+            }
+
+            // Restore the original effects.
+            for (StatusEffectInstance effect : effects) {
+                player.addStatusEffect(
+                        new StatusEffectInstance(effect)
+                );
+            }
+        }
+
+        player.setHealth(playerHealth);
+
+        player.getHungerManager().setFoodLevel(savedHunger);
+        player.getHungerManager().setSaturationLevel(savedSaturation);
+        player.getHungerManager().setExhaustion(savedExhaustion);
 
         //Spawn Particles for effect
         world.spawnParticles(
@@ -507,6 +432,14 @@ public class JumperActive extends Power implements Active {
                 0.2
         );
 
+        //instability Event
+        if (instability >= 40) {
+            if ((Math.random() * 100) < instability - 20) {
+                swapSelectedSlot(player);
+                instability -= 1;
+            }
+        }
+
         player.playSound(
                 SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE,
                 SoundCategory.PLAYERS,
@@ -514,24 +447,264 @@ public class JumperActive extends Power implements Active {
                 1.0f
         );
 
-        if(player.isCreative() || player.isSpectator()) {
+        if (player.isCreative() || player.isSpectator()) {
             instability = 0;
-        } else {
-            instability = (instability + (distance / 100) + 10);
+        } else if (safePos != null) {
+            instability = instability + (Math.pow(distance, 1/1.4));
         }
 
         PacketByteBuf instabilityBuf = PacketByteBufs.create();
         instabilityBuf.writeDouble(instability);
 
         ServerPlayNetworking.send(
-                (ServerPlayerEntity) player,
+                player,
                 ModPackets.INSTABILITY_SYNC,
                 instabilityBuf
         );
 
         charge = 0;
-        cooldown = 3;
+        cooldown = 4;
         CHARGING.remove(id);
+    }
+
+    private Vec3d findSafePosition(
+            ServerWorld world,
+            PlayerEntity player,
+            Vec3d origin
+    ) {
+        int radius = (int) Math.max(20 - (instability/100), 0);
+
+        // Search positions in order of increasing distance.
+        for (int distance = 0; distance <= radius; distance++) {
+            for (int dx = -distance; dx <= distance; dx++) {
+                for (int dy = -distance; dy <= distance; dy++) {
+                    for (int dz = -distance; dz <= distance; dz++) {
+
+                        // Only examine positions on the current search shell.
+                        if (Math.max(
+                                Math.max(Math.abs(dx), Math.abs(dy)),
+                                Math.abs(dz)
+                        ) != distance) {
+                            continue;
+                        }
+
+                        BlockPos candidate = BlockPos.ofFloored(
+                                origin.x + dx,
+                                origin.y + dy,
+                                origin.z + dz
+                        );
+
+                        if (isSafePosition(world, player, candidate)) {
+                            return new Vec3d(
+                                    candidate.getX() + 0.5,
+                                    candidate.getY(),
+                                    candidate.getZ() + 0.5
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean isSafePosition(
+            ServerWorld world,
+            PlayerEntity player,
+            BlockPos feetPos
+    ) {
+        if (instability < 70) {
+            if (feetPos.getY() < world.getBottomY()) {return false;}
+        }
+
+        if (instability < 10) {
+            if (!world.isChunkLoaded(feetPos)) {return false;}
+        }
+
+        // Ensure the player has enough room to fit.
+        Box playerBox = player.getBoundingBox()
+                .offset(
+                        feetPos.getX() + 0.5 - player.getX(),
+                        feetPos.getY() - player.getY(),
+                        feetPos.getZ() + 0.5 - player.getZ()
+                );
+
+        // Reject positions intersecting solid collision shapes.
+        if (!world.isSpaceEmpty(player, playerBox)) {return false;}
+
+        // Check the block directly below the player's feet.
+        BlockPos floorPos = feetPos.down();
+        BlockState floor = world.getBlockState(floorPos);
+
+        if (instability < 60) {
+            if (floor.getCollisionShape(world, floorPos).isEmpty()) {return false;}
+        }
+        if (instability < 50) {
+            if (isHazardous(world, feetPos)
+                    || isHazardous(world, feetPos.up())
+                    || isHazardous(world, floorPos)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void compassTeleport (PlayerEntity player, ItemStack compass, ServerWorld world) {
+        int x;
+        int y;
+        int z;
+
+        String playerDimension = player.getWorld()
+                .getRegistryKey()
+                .getValue()
+                .toString();
+
+        if (compass.isOf(Items.RECOVERY_COMPASS)) {
+            Optional<GlobalPos> deathPos = player.getLastDeathPos();
+            if (deathPos.isPresent()) {
+                GlobalPos target = deathPos.get();
+
+                // Get the block coordinates
+                x = target.getPos().getX();
+                y = target.getPos().getY();
+                z = target.getPos().getZ();
+
+                // Get the dimension
+                String dimension = target.getDimension().getValue().toString();
+
+                if (Objects.equals(dimension, playerDimension)) {
+                    world.spawnParticles(
+                        ParticleTypes.PORTAL,
+                            x,
+                            y,
+                            z,
+                            32,
+                            0.5, 0.5, 0.5,
+                            0.2
+                    );
+                    world.spawnParticles(
+                            ParticleTypes.PORTAL,
+                            player.getX(),
+                            player.getY(),
+                            player.getZ(),
+                            32,
+                            0.5, 0.5, 0.5,
+                            0.2
+                    );
+                    BlockPos targetPos = target.getPos();
+                    double distance = Math.sqrt(
+                            player.getBlockPos().getSquaredDistance(targetPos)
+                    );
+                    player.teleport(
+                            x + 0.5,
+                            y,
+                            z + 0.5
+                    );
+                    player.playSound(
+                            SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE,
+                            SoundCategory.PLAYERS,
+                            1.0f,
+                            1.0f
+                    );
+                    instability += (Math.pow(distance, 1/1.4))/2;
+                    return;
+                }
+            }
+        } else if (compass.isOf(Items.COMPASS)) {
+            if (CompassItem.hasLodestone(compass)) {
+                GlobalPos target = CompassItem.createLodestonePos(compass.getNbt());
+                if (target != null) {
+                    x = target.getPos().getX();
+                    y = target.getPos().getY();
+                    z = target.getPos().getZ();
+
+                    String dimension = target.getDimension().getValue().toString();
+
+                    if (Objects.equals(dimension, playerDimension)) {
+                        world.spawnParticles(
+                                ParticleTypes.PORTAL,
+                                x,
+                                y,
+                                z,
+                                32,
+                                0.5, 0.5, 0.5,
+                                0.2
+                        );
+                        world.spawnParticles(
+                                ParticleTypes.PORTAL,
+                                player.getX(),
+                                player.getY(),
+                                player.getZ(),
+                                32,
+                                0.5, 0.5, 0.5,
+                                0.2
+                        );
+                        BlockPos targetPos = target.getPos();
+                        double distance = Math.sqrt(
+                                player.getBlockPos().getSquaredDistance(targetPos)
+                        );
+                        player.teleport(
+                                x + 0.5,
+                                y + 1,
+                                z + 0.5
+                        );
+                        player.playSound(
+                                SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE,
+                                SoundCategory.PLAYERS,
+                                1.0f,
+                                1.0f
+                        );
+                        instability += (Math.pow(distance, 1/1.4))/2;
+                        return;
+                    }
+                }
+            } else {
+                if (player.getWorld().getRegistryKey() == World.OVERWORLD) {
+                    BlockPos spawnPos = player.getWorld().getSpawnPos();
+
+                    x = spawnPos.getX();
+                    y = spawnPos.getY();
+                    z = spawnPos.getZ();
+
+                    world.spawnParticles(
+                            ParticleTypes.PORTAL,
+                            x,
+                            y,
+                            z,
+                            32,
+                            0.5, 0.5, 0.5,
+                            0.2
+                    );
+                    world.spawnParticles(
+                            ParticleTypes.PORTAL,
+                            player.getX(),
+                            player.getY(),
+                            player.getZ(),
+                            32,
+                            0.5, 0.5, 0.5,
+                            0.2
+                    );
+                    player.playSound(
+                            SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE,
+                            SoundCategory.PLAYERS,
+                            1.0f,
+                            1.0f
+                    );
+                    BlockPos targetPos = player.getWorld().getSpawnPos();
+                    double distance = Math.sqrt(
+                            player.getBlockPos().getSquaredDistance(targetPos)
+                    );
+                    player.teleport(
+                            x + 0.5,
+                            y,
+                            z + 0.5
+                    );
+                    instability += (Math.pow(distance, 1/1.4))/2;
+                    return;
+                }
+            }
+        }
+        player.damage(player.getDamageSources().outOfWorld(), 2);
     }
 
     @Override
@@ -557,7 +730,47 @@ public class JumperActive extends Power implements Active {
 
         instability = compound.getDouble("instability");
     }
-    public void resetInstability() {
-        instability = 0;
+    public void resetInstability() {instability = 0;}
+
+    public void setInstability(double amount) {instability = amount;}
+
+    public double getInstability() {return instability;}
+
+    private static boolean isHazardous(World world, BlockPos pos) {
+        BlockState state = world.getBlockState(pos);
+
+        return state.isOf(net.minecraft.block.Blocks.LAVA)
+                || state.isOf(net.minecraft.block.Blocks.FIRE)
+                || state.isOf(net.minecraft.block.Blocks.SOUL_FIRE)
+                || state.isOf(net.minecraft.block.Blocks.MAGMA_BLOCK)
+                || state.isOf(net.minecraft.block.Blocks.CACTUS)
+                || state.isOf(net.minecraft.block.Blocks.CAMPFIRE)
+                || state.isOf(net.minecraft.block.Blocks.SOUL_CAMPFIRE)
+                || state.isOf(net.minecraft.block.Blocks.SWEET_BERRY_BUSH)
+                || state.isOf(net.minecraft.block.Blocks.WITHER_ROSE)
+                || state.isOf(net.minecraft.block.Blocks.POWDER_SNOW);
+    }
+
+    public void swapSelectedSlot(PlayerEntity player) {
+        PlayerInventory inventory = player.getInventory();
+
+        int selectedSlot = inventory.selectedSlot;
+
+        Random random = new Random();
+        int randomSlot;
+
+        do {
+            randomSlot = random.nextInt(9);
+        } while (randomSlot == selectedSlot);
+
+        // Swap the item stacks
+        ItemStack selectedItem = inventory.getStack(selectedSlot);
+        ItemStack randomItem = inventory.getStack(randomSlot);
+
+        inventory.setStack(selectedSlot, randomItem);
+        inventory.setStack(randomSlot, selectedItem);
+
+        // Select the slot containing the original item
+        inventory.selectedSlot = randomSlot;
     }
 }

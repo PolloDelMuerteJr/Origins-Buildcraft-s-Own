@@ -38,6 +38,11 @@ public class OriginBuildCraftSOwnClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			tick(client);
 		});
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			if (client.world != null) {
+				ClientSkyTime.tick(client.world.getTimeOfDay());
+			}
+		});
 
 	}
 
@@ -47,6 +52,5 @@ public class OriginBuildCraftSOwnClient implements ClientModInitializer {
 		} else {
 			ClientChargingData.resetChargingTicks();
 		}
-
 	}
 }

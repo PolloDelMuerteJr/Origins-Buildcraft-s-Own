@@ -78,11 +78,11 @@ public class ModPowers {
                 new Identifier("origin-buildcrafts-own", "jumper_jump"),
                 JUMPER_JUMP
         );
-        //This power is purely a description, it does nothing
+        //
         Registry.register(
                 ApoliRegistries.POWER_FACTORY,
-                new Identifier("origin-buildcrafts-own", "jumper_description"),
-                JUMPER_DESCRIPTION
+                new Identifier("origin-buildcrafts-own", "jumper_instability_events"),
+                JUMPER_INSTABILITY_EVENTS
         );
     }
 //--------------------------------------------------------------------------------------------------//
@@ -167,10 +167,10 @@ public class ModPowers {
                             )
             );
     //This power is purely a description, it does nothing
-    public static final PowerFactory<Power> JUMPER_DESCRIPTION =
+    public static final PowerFactory<Power> JUMPER_INSTABILITY_EVENTS =
             new PowerFactory<>(
-                    new Identifier("origin-buildcrafts-own", "jumper_description"),
+                    new Identifier("origin-buildcrafts-own", "jumper_instability_events"),
                     new SerializableData(),
-                    data -> JumperDescriptionPower::new
+                    data -> JumperInstabilityEventsPower::new
             );
 }

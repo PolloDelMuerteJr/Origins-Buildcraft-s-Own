@@ -4,11 +4,13 @@
 	"compatibilityLevel": "JAVA_17",
 	"client": [
 		"ChargingFovMixin",
+		"ClientPlayNetworkHandlerMixin",
+		"DisableDistortionMixin",
+		"HideCrosshairMixin",
 		"HideHandMixin",
 		"HidePortalParticlesMixin",
-		"PortalOverlayMixin",
-		"DisableDistortionMixin",
-		"HideCrosshairMixin"
+		"LunarWorldViewMixin",
+		"PortalOverlayMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
