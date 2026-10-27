@@ -8,8 +8,8 @@ This mod is a .jar place it in your mods folder like any other fabric mod.
 <br>This mod is dependent on the [Origins mod](https://modrinth.com/mod/origins) By Apace. The [Pehkui Mod](https://modrinth.com/mod/pehkui) by Virtuoel. And [Fabric API](https://modrinth.com/mod/fabric-api).
 <br>The exact version of these dependencies will rely on the version of Origins: BuildCraft's Own you are using.
 
-There is a config file in this mod, it can disable the Origins added by the mod. It will not remove the Origins from player who have already picked them, only prevent them from being picked in the Origins selection menu. You must restart the server for it to take effect.
-<br>The config file is named "*origin-buildcrafts-own.json*" it lives at /origin-buildcrafts-own-template-1.20.2/run/config/
+There is a config file in this mod, it can disable the Origin added by the mod. It will not remove the Origins from players who have already picked them, only prevent them from being picked in the Origins selection menu. You must restart the server for it to take effect.
+<br>The config file is named "*origin-buildcrafts-own.json*" it lives at `/origin-buildcrafts-own-template-1.20.2/run/config/`
 
 ## License
 
@@ -19,7 +19,7 @@ This mod is available under the CC0 license. Feel free to learn from it and inco
 
 This mod was made by PolloDelMuerteJr, with assistance from ChatGPT.
 <br>Functional Builds of this mod can be downloaded at [Modrinth](https://modrinth.com/mod/origins-buildcrafts-own) or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/origins-buildcrafts-own).
-<br>The source code can be found on the [Github](https://github.com/PolloDelMuerteJr/Origins-Buildcraft-s-Own) project. This is also where issues, bugs, and suggestions can be submitted. This code may from an in development build of the mod, and may not be fully functional.
+<br>The source code can be found on the [Github](https://github.com/PolloDelMuerteJr/Origins-Buildcraft-s-Own) project. This is also where issues, bugs, and suggestions can be submitted. This code may from an in-development build of the mod, and may not be fully functional.
 
 ## Gameplay Information
 
@@ -46,9 +46,9 @@ The Giant is a very realistic take on a 'giant' player. They have no active abil
 
 * Giants break blocks 1.5 times faster then normal
 
-* Giants have an increased interaction range, ~7.5 blocks
+* Giants have an increased interaction range, of ~7.5 blocks
 
-* The Giant has a 0.25 chance to break a bed they wake up in
+* The Giant has a 1/4 chance to break a bed they wake up in
 
 * The Giant will break 'weak' blocks like leaves and ice when stood on them. This process is slowed by the Feather Falling enchantment. This can be prevented by level 3 Feather Falling
 * Some blocks will also break instantly, like vines and lily pads. This can also be prevented by level 3 Feather Falling
@@ -62,7 +62,7 @@ The Giant is a very realistic take on a 'giant' player. They have no active abil
 * Fireworks are much less effective in flight when used by a Giant
 * When in flight Giants cannot rotate/turn instantly, they have a forced turning circle
 
-* Giants will force open any non-iron trapdoors they land on when falling from a hight greater then 2.4 blocks
+* Giants will force open any non-iron trapdoors they land on when falling from a height greater then 2.4 blocks
 
 ### Jumper
 
